@@ -15,7 +15,7 @@
 
 > 真实 DSH 会话：地图占主区，大尺寸浮窗里是官方 `conversation.content`（消息、输入框、`+` 添加文件、完全权限、DeepSeek-V4.1-Flash / 1017 / Max）。
 
-> 想上架 DSH 插件市场？见 [PUBLISHING.md](PUBLISHING.md)。注意：npm 名字 `dsh-mindmap` 已被其他插件占用，发布前必须改名或使用 scoped 包名。
+> 想上架 DSH 插件市场？见 [PUBLISHING.md](PUBLISHING.md)。仓库和市场展示名保留 `dsh-mindmap`，npm 包使用 scoped 名 `@zhengxiantai/dsh-mindmap`。
 
 ![话题树](docs/preview.png)
 
@@ -197,13 +197,13 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
 
 脚本会：
 
-1. 把包复制到 `%DSH_HOME%\profiles\desktop\node_modules\dsh-mindmap`；
+1. 把包复制到 `%DSH_HOME%\profiles\desktop\node_modules\@zhengxiantai\dsh-mindmap`；
 2. 在 `profiles\desktop\cordis.patch.yml` 末尾追加一行：
 
 ```yaml
 - insert:
     - id: mindmap
-      name: 'dsh-mindmap'
+      name: '@zhengxiantai/dsh-mindmap'
 ```
 
 启用 HMR 的 profile 会自动重组插件树，无需重启；否则重启 DSH。卸载：
@@ -219,7 +219,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Uninstall
 发布到 npm 后：
 
 ```sh
-dsh plugin --profile desktop add dsh-mindmap
+dsh plugin --profile desktop add @zhengxiantai/dsh-mindmap
 ```
 
 `package.json` 的 `dsh.bundle.patch` 会让 CLI 把本包追加进 `dsh.profile.bundles`，profile 启动时自动合并 `cordis.patch.yml` 里的那一行。也可以从本地目录/Git 仓库安装：
@@ -230,12 +230,12 @@ dsh plugin --profile desktop add D:\Projects\DSH-TREE\dsh-mindmap
 
 ### 方式 C：手动挂载
 
-把整个目录复制到 `<profile>/node_modules/dsh-mindmap`，再编辑 `<profile>/cordis.patch.yml`（若原文件是 `[]`，要先把它替换成列表）：
+把整个目录复制到 `<profile>/node_modules/@zhengxiantai/dsh-mindmap`，再编辑 `<profile>/cordis.patch.yml`（若原文件是 `[]`，要先把它替换成列表）：
 
 ```yaml
 - insert:
     - id: mindmap
-      name: 'dsh-mindmap'
+      name: '@zhengxiantai/dsh-mindmap'
       config:
         autoSummarize: true
 ```
@@ -283,7 +283,7 @@ dsh plugin --profile desktop add D:\Projects\DSH-TREE\dsh-mindmap
 ```yaml
 - insert:
     - id: mindmap
-      name: 'dsh-mindmap'
+      name: '@zhengxiantai/dsh-mindmap'
       config:
         provider: deepseek-account
         model: deepseek-flash

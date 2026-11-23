@@ -2,14 +2,14 @@
 #
 # Installed through the official CLI:
 #
-#   dsh plugin --profile <name> add dsh-mindmap
+#   dsh plugin --profile <name> add @zhengxiantai/dsh-mindmap
 #
 # the CLI appends this bundle to `dsh.profile.bundles`, and the profile boot
 # merges THIS patch: one `insert` of the plugin row. For a local checkout,
 # the same row can be mounted manually in the profile's cordis.patch.yml.
 - insert:
     - id: mindmap
-      name: 'dsh-mindmap'
+      name: '@zhengxiantai/dsh-mindmap'
       config:
         autoSummarize: true
         summaryMaxInputChars: 12000

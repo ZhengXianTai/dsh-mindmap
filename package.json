@@ -1,5 +1,5 @@
 {
-  "name": "dsh-mindmap",
+  "name": "@zhengxiantai/dsh-mindmap",
   "version": "0.7.0",
   "description": "A map-first DeepSeek Harness (DSH) plugin: the session tree is the main mind map, and a frosted floating chat forks a child subtopic when you send its first message.",
   "type": "module",
