@@ -1,0 +1,68 @@
+{
+  "name": "dsh-mindmap",
+  "version": "0.7.0",
+  "description": "A map-first DeepSeek Harness (DSH) plugin: the session tree is the main mind map, and a frosted floating chat forks a child subtopic when you send its first message.",
+  "type": "module",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZhengXianTai/dsh-mindmap.git"
+  },
+  "homepage": "https://github.com/ZhengXianTai/dsh-mindmap#readme",
+  "bugs": {
+    "url": "https://github.com/ZhengXianTai/dsh-mindmap/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "default": "./lib/client.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "install.ps1",
+    "screenshots.json",
+    "LICENSE",
+    "PUBLISHING.md",
+    "docs",
+    "README.md"
+  ],
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "mindmap",
+    "session-tree",
+    "context"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": []
+    },
+    "manifestVersion": 1
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.0",
+    "@deepseek-ai/dsh-llm": ">=0.2.0-rc.1 <0.3.0-0 || >=0.2.1-rc.1 <0.3.0-0 || >=0.2.2-rc.1 <0.3.0-0 || >=0.2.3-rc.1 <0.3.0-0",
+    "@deepseek-ai/dsh-session": ">=0.2.0-rc.1 <0.3.0-0 || >=0.2.1-rc.1 <0.3.0-0 || >=0.2.2-rc.1 <0.3.0-0 || >=0.2.3-rc.1 <0.3.0-0",
+    "@deepseek-ai/dsh-session-query": ">=0.2.0-rc.1 <0.3.0-0 || >=0.2.1-rc.1 <0.3.0-0 || >=0.2.2-rc.1 <0.3.0-0 || >=0.2.3-rc.1 <0.3.0-0",
+    "@deepseek-ai/dsh-tools": ">=0.2.0-rc.1 <0.3.0-0 || >=0.2.1-rc.1 <0.3.0-0 || >=0.2.2-rc.1 <0.3.0-0 || >=0.2.3-rc.1 <0.3.0-0",
+    "react": "^18.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}
