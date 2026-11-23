@@ -44,7 +44,7 @@ DSH 的插件市场（`dshmarket`）本身**不接收投稿**。它每次打开�
 | GitHub 仓库加 `dsh-plugin` topic | ⏳ 需要网页添加 |
 | GitHub 仓库创建满 1 天 | ⏳ 2026-11-24 22:09 之后 |
 | npm 登录 | ✅ `npm whoami` = `zhengxiantai` |
-| npm 发布 | ⏳ 尚未执行 |
+| npm 发布 | ✅ `@zhengxiantai/dsh-mindmap@0.7.0`（2026-11-23） |
 
 `peerDependencies` 使用显式预发布分支，例如：
 
@@ -96,6 +96,8 @@ npm publish --access public
 ```powershell
 npm view @zhengxiantai/dsh-mindmap version repository
 ```
+
+npm 11 对新包返回 `202 Accepted`，会提示 “being processed and may take a few minutes”；通常 1–3 分钟后 `npm view` 才能查到，未立即出现不是失败。
 
 如果 npm 提示 OTP，输入验证器里的 6 位码即可。**recovery code 只有在
 验证器丢失时才使用，用一次就作废，不要提交到仓库。**
