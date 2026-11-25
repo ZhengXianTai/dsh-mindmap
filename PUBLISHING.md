@@ -45,6 +45,7 @@ DSH 的插件市场（`dshmarket`）本身**不接收投稿**。它每次打开�
 | GitHub 仓库创建满 1 天 | ✅（2026-11-23 创建） |
 | npm 登录 | ✅ `npm whoami` = `zhengxiantai` |
 | npm 发布 | ✅ `0.7.0` 已发布；`0.8.0` 待发布 |
+| 市场目录 PR | ✅ [#18800](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/18800)（仅 1 个文件） |
 
 `peerDependencies` 使用显式预发布分支，例如：
 
