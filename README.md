@@ -8,6 +8,7 @@
 - **会话清理**：浮窗标题栏 `🗑` 归档当前会话，确认后从侧栏和地图移除；会话日志保留，可在归档中恢复；
 - **轮次回退**：浮窗 `☰` 列出节点内的每一轮；选一轮「从此轮重开」，会创建一个只保留该轮之前历史的新节点，该轮及之后被切掉，旧节点归档；
 - **浮窗状态保持**：浮窗打开后会一直保持打开，回合完成、页面刷新或地图重新挂载都不会把它关掉；只有 `×` 或 `Ctrl+Shift+M` / 顶部「浮窗」按钮会切换状态；
+- **轮次导航层级色**：浮窗右侧官方的「轮次导航」按层级固定着色——当前节点蓝、父节点绿、祖父节点琥珀、更高层紫/粉/灰；只给导航条着色，消息正文不变，也不加图例；
 - **标题同步重命名**：节点 `✎`、详情「重命名」、浮窗 `✎` 都能弹出重命名窗口；写回 DSH 的 session title 后，左侧栏、地图卡片和浮窗标题同步。反过来，在左侧栏重命名也会立即反映到地图；卡片主标题始终使用会话标题，摘要 topic 不再覆盖它；
 - **不污染父话题**：子话题从父会话的精确前缀 fork，回到父话题时父会话不会带上子话题的上下文。
 
@@ -60,6 +61,29 @@ DSH 的 `main` 是 keyed slot，一次只渲染一个面板。本插件把地图
 - 新节点标题会尝试改为「旧标题 · 回退」。
 
 这个功能是 **A：轮次级回退**，效果是“删掉这一轮及之后”，不是从中间抽掉一轮后保留后面的轮次。后者需要重写 append-only 日志，未实现。
+
+### 轮次导航层级色
+
+浮窗右侧、贴着滚动条的官方「轮次导航」（`nav[aria-label="轮次导航"]`，每轮一根可点击短横条）会按**相对当前节点的层级**固定着色：
+
+| 层级 | 含义 | 颜色 |
+|---|---|---|
+| 0 | 当前节点自己的轮次 | 蓝 `#3b82f6` |
+| 1 | 从父节点继承的轮次 | 绿 `#10b981` |
+| 2 | 从祖父节点继承的轮次 | 琥珀 `#f59e0b` |
+| 3 | 曾祖父节点 | 紫 `#8b5cf6` |
+| 4 | 更高层 | 粉 `#ec4899` |
+| 5+ | 更深祖先 | 灰 `#64748b` |
+
+![轮次导航层级色](docs/turn-rail-colors.png)
+
+判定方法：
+
+- Host 的 `/mindmap/api/turns` 在原始事件里找 `session/end-seed` 且 `data.inherited === true` 的事件，这些是 fork 时复制前缀的边界；
+- 结合 `turnOutline` projection 的每个 `turn/start.seq`，一个轮次的 `level = 边界中 >= 该轮 startSeq 的个数`；
+- 当前节点自己的轮次没有边界压在上面，level 0；父节点前缀跨过 1 个边界，level 1；祖父跨 2 个，以此类推；
+- Client 只监听 `.mm-float` 内的 `nav button[data-index]`，把 `--dsw-alias-border-l4` 和 `--dsw-alias-label-primary` 改成对应层级色，因此只影响导航条的 `::before`，不改消息、不改全屏对话；
+- 颜色是常量数组，不会随机生成；没有图例/徽标（按当前需求保持简洁）。
 
 ### 浮窗状态保持
 
@@ -197,13 +221,13 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
 
 脚本会：
 
-1. 把包复制到 `%DSH_HOME%\profiles\desktop\node_modules\@zhengxiantai\dsh-mindmap`；
+1. 把包复制到 `%DSH_HOME%\profiles\desktop\node_modules\dsh-mindmap`（本地挂载名；npm 包名仍是 scoped）；
 2. 在 `profiles\desktop\cordis.patch.yml` 末尾追加一行：
 
 ```yaml
 - insert:
     - id: mindmap
-      name: '@zhengxiantai/dsh-mindmap'
+      name: 'dsh-mindmap'
 ```
 
 启用 HMR 的 profile 会自动重组插件树，无需重启；否则重启 DSH。卸载：
@@ -216,7 +240,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Uninstall
 
 ### 方式 B：作为 npm 包安装
 
-发布到 npm 后：
+发布到 npm 后（scoped 包名）：
 
 ```sh
 dsh plugin --profile desktop add @zhengxiantai/dsh-mindmap
@@ -230,12 +254,12 @@ dsh plugin --profile desktop add D:\Projects\DSH-TREE\dsh-mindmap
 
 ### 方式 C：手动挂载
 
-把整个目录复制到 `<profile>/node_modules/@zhengxiantai/dsh-mindmap`，再编辑 `<profile>/cordis.patch.yml`（若原文件是 `[]`，要先把它替换成列表）：
+本机检查用未 scoped 的目录名，避免 client-modules 在部分 DSH 版本上解析 scoped 本地包失败。把整个目录复制到 `<profile>/node_modules/dsh-mindmap`，并把复制后的 `package.json` 的 `name` 改成 `dsh-mindmap`，再编辑 `<profile>/cordis.patch.yml`（若原文件是 `[]`，要先把它替换成列表）：
 
 ```yaml
 - insert:
     - id: mindmap
-      name: '@zhengxiantai/dsh-mindmap'
+      name: 'dsh-mindmap'
       config:
         autoSummarize: true
 ```
@@ -283,7 +307,7 @@ dsh plugin --profile desktop add D:\Projects\DSH-TREE\dsh-mindmap
 ```yaml
 - insert:
     - id: mindmap
-      name: '@zhengxiantai/dsh-mindmap'
+      name: 'dsh-mindmap'
       config:
         provider: deepseek-account
         model: deepseek-flash

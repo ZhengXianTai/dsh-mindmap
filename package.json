@@ -1,7 +1,7 @@
 {
   "name": "@zhengxiantai/dsh-mindmap",
-  "version": "0.7.0",
-  "description": "A map-first DeepSeek Harness (DSH) plugin: the session tree is the main mind map, and a frosted floating chat forks a child subtopic when you send its first message.",
+  "version": "0.8.0",
+  "description": "A map-first DeepSeek Harness (DSH) plugin: the session tree is the main mind map, and a frosted floating chat forks a child subtopic when you send its first message. The native turn navigator is colored by ancestry level.",
   "type": "module",
   "main": "lib/index.js",
   "repository": {

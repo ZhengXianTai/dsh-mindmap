@@ -4,9 +4,9 @@
 #   pwsh -File install.ps1 -Profile web    # mount into another profile
 #   pwsh -File install.ps1 -Uninstall      # remove the package and its mount row
 #
-# The package is copied to <profile>/node_modules/@zhengxiantai/dsh-mindmap and a single
-# loader row is appended to <profile>/cordis.patch.yml. A profile with HMR
-# enabled re-composes the tree automatically; otherwise restart DSH.
+# This local-checkout installer uses the unscoped mount name `dsh-mindmap`
+# (the npm package itself is `@zhengxiantai/dsh-mindmap`). The copy gets a
+# package.json name matching the mount so the client module loader resolves it.
 param(
   [string]$Profile = 'desktop',
   [switch]$Uninstall
@@ -15,14 +15,14 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $source = $PSScriptRoot
-$packageName = '@zhengxiantai/dsh-mindmap'
+$packageName = 'dsh-mindmap'
 $dshHome = if ($env:DSH_HOME) { $env:DSH_HOME } else { Join-Path $HOME '.dsh' }
 $profileDir = Join-Path $dshHome "profiles\$Profile"
 if (-not (Test-Path -LiteralPath $profileDir)) {
   throw "Profile not found: $profileDir"
 }
 $patchFile = Join-Path $profileDir 'cordis.patch.yml'
-$target = Join-Path $profileDir 'node_modules\@zhengxiantai\dsh-mindmap'
+$target = Join-Path $profileDir 'node_modules\dsh-mindmap'
 $mountBlock = @"
 - insert:
     - id: mindmap
@@ -50,11 +50,26 @@ if ($Uninstall) {
 
 New-Item -ItemType Directory -Path (Split-Path $target) -Force | Out-Null
 New-Item -ItemType Directory -Path $target -Force | Out-Null
-foreach ($item in @('lib', 'package.json', 'cordis.patch.yml', 'README.md')) {
+foreach ($item in @('lib', 'package.json', 'cordis.patch.yml', 'README.md', 'docs')) {
   $from = Join-Path $source $item
   if (Test-Path -LiteralPath $from) {
     Copy-Item -LiteralPath $from -Destination $target -Recurse -Force
   }
+}
+# The npm package is scoped; the local mount and node_modules directory are not.
+$installedPackage = Join-Path $target 'package.json'
+if (Test-Path -LiteralPath $installedPackage) {
+  $manifest = Get-Content -LiteralPath $installedPackage -Raw | ConvertFrom-Json
+  $manifest.name = $packageName
+  $utf8 = New-Object System.Text.UTF8Encoding($false)
+  [System.IO.File]::WriteAllText($installedPackage, ($manifest | ConvertTo-Json -Depth 20), $utf8)
+}
+$installedPatch = Join-Path $target 'cordis.patch.yml'
+if (Test-Path -LiteralPath $installedPatch) {
+  $patchText = Get-Content -LiteralPath $installedPatch -Raw
+  $patchText = $patchText -replace "@zhengxiantai/dsh-mindmap", "dsh-mindmap"
+  $utf8 = New-Object System.Text.UTF8Encoding($false)
+  [System.IO.File]::WriteAllText($installedPatch, $patchText, $utf8)
 }
 Write-Host "Installed package to $target"
 
