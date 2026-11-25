@@ -42,9 +42,9 @@ DSH 的插件市场（`dshmarket`）本身**不接收投稿**。它每次打开�
 | `repository` 指回 GitHub | ✅ |
 | GitHub 仓库已有第一个 commit | ✅ `f4a39e4` 起 |
 | GitHub 仓库加 `dsh-plugin` topic | ⏳ 需要网页添加 |
-| GitHub 仓库创建满 1 天 | ⏳ 2026-11-24 22:09 之后 |
+| GitHub 仓库创建满 1 天 | ✅（2026-11-23 创建） |
 | npm 登录 | ✅ `npm whoami` = `zhengxiantai` |
-| npm 发布 | ✅ `@zhengxiantai/dsh-mindmap@0.7.0`（2026-11-23） |
+| npm 发布 | ✅ `0.7.0` 已发布；`0.8.0` 待发布 |
 
 `peerDependencies` 使用显式预发布分支，例如：
 
