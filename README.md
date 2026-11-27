@@ -132,10 +132,23 @@ DSH 的插件是 Cordis 插件，一个包可以同时有 **Host 半侧**（Node
 
 ```text
 package.json
-  dsh.bundle.patch -> cordis.patch.yml   # 一行 insert: { id: mindmap, name: dsh-mindmap }
+  dsh.bundle.patch -> cordis.patch.yml   # 一行 insert: { id: mindmap, name: @zhengxiantai/dsh-mindmap }
   dsh.client       -> platform: web      # 扫描出 lib/client.js，注入 window.__DSH_BOOT__
   exports["./client"]
 ```
+
+**硬性约定（0.9.0 起）**：`lib/client.js` 的 `window.__ModuleLoader__.load({ id })` 必须等于 `package.json` 的 `name`。client-modules 用包名索引启动图，id 不一致时页面会抛 `no registered factory for "<包名>"`，Host 半侧照常工作、Client 半侧完全不出现——这正是 0.8.0 从市场装到别的电脑后“装了但没反应”的原因（当时本地挂载把包名改成了 `dsh-mindmap`，把问题盖住了）。`test/client.test.mjs` 现在会直接比对这两个值。
+
+### 兼容性
+
+| 项 | 值 |
+|---|---|
+| 已验证 DSH | `0.2.2-rc.5`（Desktop / Web profile 均验证） |
+| `engines.dsh` | `>=0.2.2-rc.1 <0.3.0-0` |
+| `engines.node` | `>=24.9`（DSH 0.2.1-rc.2 起要求 Node 24） |
+
+0.8.0 → 0.9.0 的适配内容：Client 工厂 id 改为 scoped 包名（决定性修复）；本地 `install.ps1` 改为 scoped 挂载；`engines.dsh` 明确声明；`health.version` 跟随发版。0.2.2 的右键菜单前缀、CSS 锚定菜单、窗口区域等改动不影响本插件（它只用自己的浮层，不用全局菜单/拖拽区域）。
+
 
 ### 复用的 DSH 扩展点
 
@@ -221,14 +234,17 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
 
 脚本会：
 
-1. 把包复制到 `%DSH_HOME%\profiles\desktop\node_modules\dsh-mindmap`（本地挂载名；npm 包名仍是 scoped）；
+1. 把包复制到 `%DSH_HOME%\profiles\desktop\node_modules\@zhengxiantai\dsh-mindmap`（**scoped 挂载名，与 npm 包名一致**）；
 2. 在 `profiles\desktop\cordis.patch.yml` 末尾追加一行：
 
 ```yaml
 - insert:
     - id: mindmap
-      name: 'dsh-mindmap'
+      name: '@zhengxiantai/dsh-mindmap'
 ```
+
+> **为什么本地也必须用 scoped 名**：DSH 的 client-modules 用**包名**给浏览器模块图建索引，`lib/client.js` 的工厂 id 必须等于包名。旧的 `node_modules/dsh-mindmap` 挂载会让 Host 半侧正常加载、Client 半侧在页面上报
+> `client-modules: no registered factory for "@zhengxiantai/dsh-mindmap"`，整页停在「Failed to load plugins」。0.9.0 起本地挂载与 npm 安装统一用 scoped 名。
 
 启用 HMR 的 profile 会自动重组插件树，无需重启；否则重启 DSH。卸载：
 
@@ -254,15 +270,17 @@ dsh plugin --profile desktop add D:\Projects\DSH-TREE\dsh-mindmap
 
 ### 方式 C：手动挂载
 
-本机检查用未 scoped 的目录名，避免 client-modules 在部分 DSH 版本上解析 scoped 本地包失败。把整个目录复制到 `<profile>/node_modules/dsh-mindmap`，并把复制后的 `package.json` 的 `name` 改成 `dsh-mindmap`，再编辑 `<profile>/cordis.patch.yml`（若原文件是 `[]`，要先把它替换成列表）：
+把整个目录复制到 `<profile>/node_modules/@zhengxiantai/dsh-mindmap`，**保留 `package.json` 里的 scoped `name`**（不要改名），再编辑 `<profile>/cordis.patch.yml`（若原文件是 `[]`，要先把它替换成列表）：
 
 ```yaml
 - insert:
     - id: mindmap
-      name: 'dsh-mindmap'
+      name: '@zhengxiantai/dsh-mindmap'
       config:
         autoSummarize: true
 ```
+
+文件名、`node_modules` 目录名、挂载行名和 `lib/client.js` 的工厂 id 必须四者一致。
 
 ---
 
@@ -307,7 +325,7 @@ dsh plugin --profile desktop add D:\Projects\DSH-TREE\dsh-mindmap
 ```yaml
 - insert:
     - id: mindmap
-      name: 'dsh-mindmap'
+      name: '@zhengxiantai/dsh-mindmap'
       config:
         provider: deepseek-account
         model: deepseek-flash

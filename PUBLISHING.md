@@ -44,8 +44,20 @@ DSH 的插件市场（`dshmarket`）本身**不接收投稿**。它每次打开�
 | GitHub 仓库加 `dsh-plugin` topic | ✅ 已通过 API 设置 |
 | GitHub 仓库创建满 1 天 | ✅（2026-11-23 创建） |
 | npm 登录 | ✅ `npm whoami` = `zhengxiantai` |
-| npm 发布 | ✅ `0.8.0` 已发布（latest；`0.7.0` 保留） |
+| npm 发布 | ✅ `0.8.0` 已发布；`0.9.0` 待发布（修复市场安装后 Client 不加载） |
 | 市场目录 PR | ✅ [#18800](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/18800)（仅 1 个文件） |
+
+### 0.9.0 必须发布的理由
+
+0.8.0 在别的电脑上「装了但没反应」：npm 包名是 scoped 的 `@zhengxiantai/dsh-mindmap`，而 `lib/client.js` 把工厂 id 写成了未 scoped 的 `dsh-mindmap`。DSH 的 client-modules 按**包名**索引启动图，id 不一致就抛
+`client-modules: no registered factory for "@zhengxiantai/dsh-mindmap"`，Host 半侧加载、Client 半侧不出现。本机用 `install.ps1` 把包名改成 `dsh-mindmap`，恰好掩盖了这个 bug。
+
+修复后 npm 包名、`node_modules` 目录名、挂载行名与工厂 id 四者统一为 `@zhengxiantai/dsh-mindmap`。发布前先跑：
+
+```powershell
+node ..\test\client.test.mjs   # 断言工厂 id === package.json name
+```
+
 
 `peerDependencies` 使用显式预发布分支，例如：
 
@@ -232,7 +244,9 @@ dsh plugin --profile web add @zhengxiantai/dsh-mindmap
 
 ```text
 [ ] package.json name = @zhengxiantai/dsh-mindmap
+[ ] lib/client.js 的 __ModuleLoader__ id === package.json name（scoped！）
 [ ] cordis.patch.yml insert.name = @zhengxiantai/dsh-mindmap
+[ ] install.ps1 把包复制到 node_modules/@zhengxiantai/dsh-mindmap，不改名
 [ ] package.json repository 指回 GitHub
 [ ] npm whoami = zhengxiantai
 [ ] npm pack --dry-run 没有 node_modules / test-output
@@ -242,6 +256,8 @@ dsh plugin --profile web add @zhengxiantai/dsh-mindmap
 [ ] 只新增 data/plugins/ZhengXianTai__dsh-mindmap.yml 一个文件
 [ ] 不向 dsh-market 仓库提条目
 ```
+
+发布后建议在另一台干净电脑上验一遍：装完刷新页面，侧边栏应出现「话题地图」；如果整页停在「Failed to load plugins」，先看控制台是不是又出现 `no registered factory`（说明客户端 bundle 和包名又不同步了）。
 
 ## 参考
 
